@@ -272,12 +272,47 @@ DimPlot(SC_obj_sub, group.by = "seurat_clusters",
 
 
 
+rorgt_genes = c("RORC", "IL23R", "CCR6", "MAF", "AHR")
+rorgt_genes = rorgt_genes[rorgt_genes %in% rownames(SC_obj_sub)]
 
 
-FeaturePlot(SC_obj_sub, features = c("FOXP3", "HIF1A"), 
-            cols = c("lightgrey", "#000B58"),
-            order = TRUE,
-            max.cutoff = "q95")
+rorgt_genes %in% rownames(SC_obj_sub)
+
+SC_obj_sub <- AddModuleScore(
+  object = SC_obj_sub,
+  features = list(rorgt_genes),
+  name = "RORgt_Treg_Score"
+)
+
+
+
+SC_obj_sub$group = factor(SC_obj_sub$group, levels = c("CD", "Healthy"))
+genes = c("IL2RA", "IKZF2", "ICOS", "CTLA4", "PDCD1", "FOXP3", "LAG3", "HAVCR2", "AHR", "HIF1A", "RORA")
+FeaturePlot(
+  SC_obj_sub,
+  features = "RORgt_Treg_Score1",
+  cols = c("lightgrey", "darkred"),
+  order = TRUE,
+  split.by = "group",
+  max.cutoff = "q95"
+) +
+  theme_test(18) +
+  theme(
+    panel.background = element_rect(fill = "white", colour = "black"),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.8)
+  )
+            
+
+
+
+VlnPlot(
+  SC_obj_sub,
+  features = c("RORC", "IL23R", "CCR6", "  MAF", "AHR"),
+  stack = F
+)
+
+
+
 
 head(SC_obj_sub)
 
@@ -349,3 +384,128 @@ ggplot(donut_df, aes(x = 2, y = percent, fill = group)) +
     plot.title = element_text(face = "bold", hjust = 0.5),
     strip.text = element_text(face = "bold", size = 12)
   )
+
+
+
+
+
+
+
+### trajetoria
+
+treg_core <- c("FOXP3", "IL2RA", "CTLA4", "IKZF2", "ICOS", "PDCD1", "LAG3", "HAVCR2", "TIGIT")
+
+rorgt_program <- c("RORC", "IL23R", "CCR6", "MAF", "AHR")
+
+inflam_genes <- c("HIF1A", "IL10", "IL17A", "IL17F", "IFNG", "TNF")
+
+
+BiocManager::install("slingshot")
+BiocManager::install("SingleCellExperiment")
+library(SingleCellExperiment)
+library(slingshot)
+
+DefaultAssay(SC_obj_sub) <- "SCT"
+
+
+sce <- as.SingleCellExperiment(SC_obj_sub, assay = "SCT")
+
+
+library(slingshot)
+library(SingleCellExperiment)
+
+reducedDims(sce)$UMAP <- Embeddings(SC_obj_sub, "umap")
+colData(sce)$cluster <- SC_obj_sub$seurat_clusters
+
+sce <- slingshot(
+  sce,
+  clusterLabels = "cluster",
+  reducedDim = "UMAP"
+)
+
+SC_obj_sub$pseudotime <- slingPseudotime(sce)[, 1]
+df_traj <- as.data.frame(reducedDims(sce)$UMAP)
+colnames(df_traj) <- c("UMAP_1", "UMAP_2")
+
+df_traj$cluster <- colData(sce)$cluster
+df_traj$group <- SC_obj_sub$group
+df_traj$pseudotime <- SC_obj_sub$pseudotime
+
+ggplot(df_traj, aes(UMAP_1, UMAP_2, color = pseudotime)) +
+  geom_point(size = 0.5) +
+  scale_color_viridis_c(option = "magma", na.value = "grey80") +
+  theme_classic()
+
+
+library(slingshot)
+library(viridis)
+
+pt <- slingPseudotime(sce)[, 1]
+
+cols <- viridis(100)[cut(pt, breaks = 100)]
+
+plot(
+  reducedDims(sce)$UMAP,
+  col = cols,
+  pch = 16,
+  cex = 0.6,
+  asp = 1,
+  xlab = "UMAP 1",
+  ylab = "UMAP 2"
+)
+
+lines(
+  SlingshotDataSet(sce),
+  lwd = 3,
+  col = "black"
+)
+
+
+
+
+
+
+
+
+cds <- cluster_cells(
+  cds,
+  reduction_method = "UMAP"
+)
+
+cds <- learn_graph(
+  cds,
+  use_partition = TRUE)
+
+
+
+cds <- order_cells(cds)
+
+
+
+# Monocle 3
+plot_cells(cds, color_cells_by = "seurat_clusters")
+plot_cells(cds, color_cells_by = "pseudotime")
+plot_cells(cds, color_cells_by = "partition")
+
+
+pr_test_res <- graph_test(
+  cds,
+  neighbor_graph = "principal_graph",
+  cores = 4
+)
+
+sig_genes <- pr_test_res |>
+  as.data.frame() |>
+  dplyr::filter(q_value < 0.05) |>
+  dplyr::arrange(q_value)
+
+
+head(sig_genes)
+
+
+top_genes <- rownames(sig_genes)[1:6]
+
+plot_genes_in_pseudotime(
+  cds[top_genes, ],
+  color_cells_by = "seurat_clusters"
+)
