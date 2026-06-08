@@ -71,7 +71,7 @@ patch_plot_cell_trajectory_remaining_select()
 
 monocle::plot_cell_trajectory(cds, color_by = "seurat_clusters")
 monocle::plot_cell_trajectory(cds, color_by = "Pseudotime")
-monocle::plot_cell_trajectory(cds, color_by = "seurat_clusters")
+monocle::plot_cell_trajectory(cds, color_by = "state")
 
 
 
@@ -94,7 +94,30 @@ plot_genes_in_pseudotime(
 
 
 
+pData(cds)$RORgt_Treg_Score1 <- SC_obj_sub$RORgt_Treg_Score1[colnames(cds)]
 
+monocle::plot_cell_trajectory(
+  cds,
+  color_by = "RORgt_Treg_Score1"
+)
+
+plot_genes_jitter(
+    cds["HIF1A",],
+    grouping = "State"
+)
+
+
+plot_genes_in_pseudotime(
+    cds["HIF1A",],
+    color_by = "State"
+)
+
+
+
+monocle::plot_cell_trajectory(
+    cds,
+    color_by = "State"
+)
 
 
 
