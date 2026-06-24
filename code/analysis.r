@@ -76,7 +76,7 @@ SC_obj = readRDS("data/seu_obj/SC_obj_clustered.rds")
 httpgd::hgd()
 
 DimPlot(SC_obj, group.by = "group")
-DimPlot(SC_obj, group.by = "seurat_clusters", label = TRUE)
+DimPlot(SC_obj, group.by = "seurat_clusters", label = TRUE, raster = T, pt.size = 1.5)
 
 
 
@@ -373,8 +373,8 @@ ggplot(donut_df, aes(x = 2, y = percent, fill = group)) +
   geom_col(color = "white", width = 1) +
   coord_polar(theta = "y") +
   xlim(0.5, 2.5) +
-  facet_wrap(~ seurat_clusters, nrow = 1) +
-  scale_fill_manual(values = c("Healthy" = "#E18487", "CD" = "#1F5C5C")) +
+  facet_wrap(~ seurat_clusters, nrow = 2) +
+  scale_fill_manual(values = c("Healthy" = "#1F5C5C", "CD" = "#E18487")) +
   theme_void() +
   labs(
     fill = "Group",
@@ -384,6 +384,96 @@ ggplot(donut_df, aes(x = 2, y = percent, fill = group)) +
     plot.title = element_text(face = "bold", hjust = 0.5),
     strip.text = element_text(face = "bold", size = 12)
   )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+library(ggalluvial)
+
+DefaultAssay(SC_obj_sub) <- "SCT"
+Idents(SC_obj_sub) <- "seurat_clusters"
+
+df_hif <- FetchData(
+  SC_obj_sub,
+  vars = c("HIF1A", "seurat_clusters", "group", "sample")
+)
+
+df_hif <- df_hif %>%
+  mutate(
+    HIF1A_pos = HIF1A > 0,
+    HIF1A_status = ifelse(HIF1A_pos, "HIF1A+", "HIF1A-"),
+    seurat_clusters = factor(seurat_clusters, levels = sort(unique(seurat_clusters))),
+    group = factor(group, levels = c("Healthy", "CD")),
+    HIF1A_status = factor(HIF1A_status, levels = c("HIF1A-", "HIF1A+"))
+  )
+
+alluvial_df <- df_hif %>%
+  count(group, seurat_clusters, HIF1A_status, name = "n")
+
+ggplot(
+  alluvial_df,
+  aes(
+    axis1 = group,
+    axis2 = seurat_clusters,
+    axis3 = HIF1A_status,
+    y = n
+  )
+) +
+  geom_alluvium(
+    aes(fill = group),
+    alpha = 0.75,
+    width = 1/12,
+    color = "gray80"
+  ) +
+  geom_stratum(
+    width = 1/12,
+    color = "gray40",
+    fill = "gray95"
+  ) +
+  scale_x_discrete(
+    limits = c("Group", "FOXP3+ subcluster", "HIF1A status"),
+    expand = c(0.08, 0.08)
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Healthy" = "#1F5C5C",
+      "CD" = "#E18487"
+    )
+  ) +
+  labs(
+    title = "Flow of FOXP3+ cells by group, subcluster and HIF1A expression",
+    y = "Number of cells",
+    fill = "Group"
+  ) +
+  theme_classic(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+
+
+
+
+
+
+
 
 
 
