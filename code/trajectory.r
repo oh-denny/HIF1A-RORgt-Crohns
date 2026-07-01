@@ -37,9 +37,6 @@ ordering_genes_markers <- markers |>
 
 ordering_genes_markers <- intersect(ordering_genes_markers, rownames(cds))
 
-if (length(ordering_genes_markers) == 0) {
-  stop("No ordering genes found in cds. Check marker names and rownames(cds).")
-}
 
 cds <- estimateSizeFactors(cds)
 cds <- estimateDispersions(cds)
