@@ -98,6 +98,30 @@ p_pseudotime
 
 
 
+p_group <- monocle::plot_cell_trajectory(
+  cds,
+  color_by = "group"
+) +
+  scale_color_manual(values = c("Healthy" = "#1F5C5C", "CD" = "#E18487")) +
+  theme_classic(base_size = 14) +
+  labs(color = "group")
+
+p_group
+
+
+p_state <- monocle::plot_cell_trajectory(
+  cds,
+  color_by = "State"
+) +
+  #scale_color_manual(values = c("Healthy" = "#1F5C5C", "CD" = "#E18487")) +
+  theme_classic(base_size = 14) +
+  labs(color = "State")
+
+p_state
+
+
+
+
 monocle::plot_cell_trajectory(cds, color_by = "seurat_clusters")
 monocle::plot_cell_trajectory(cds, color_by = "Pseudotime")
 monocle::plot_cell_trajectory(cds, color_by = "State")
