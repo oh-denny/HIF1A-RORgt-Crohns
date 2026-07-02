@@ -1,0 +1,81 @@
+# macOS and editor files
+.DS_Store
+**/.DS_Store
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# R session and project state
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+Rplots.pdf
+
+# Python bytecode, environments and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Raw and processed biological data
+/data/
+/celloracle_export/
+/celloracle_export_*/
+/FOXP3_Treg_for_CellOracle.h5Seurat
+
+# Generated analyses and reports
+/results/
+/pseudobulk_clusters/
+
+# Large scientific object formats
+*.rds
+*.rda
+*.RData
+*.h5
+*.hdf5
+*.h5ad
+*.h5seurat
+*.h5Seurat
+*.loom
+*.mtx
+*.mtx.gz
+*.bed.gz
+*.fragments.tsv.gz
+*.celloracle.oracle
+*.celloracle.links
+*.celloracle.gradient
+*.oracle
+*.npz
+
+# Downloaded archives and indexes
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.tbi
+*.tbi.gz
+
+# Generated tables, logs and figures
+*.csv
+*.tsv
+*.tsv.gz
+*.txt.gz
+*.json
+*.log
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.tiff
+
+# Keep dependency manifests even though they are text files.
+!code/**/requirements*.txt

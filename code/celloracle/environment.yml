@@ -1,0 +1,29 @@
+name: celloracle-hif1a
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - pip
+  - numpy=1.26.4
+  - scipy
+  - cython
+  - numba
+  - matplotlib<3.7
+  - seaborn
+  - scikit-learn
+  - h5py
+  - pandas=1.5.3
+  - pyarrow
+  - fastparquet
+  - tqdm
+  - python-igraph
+  - louvain
+  - ipython
+  - ipywidgets
+  - anndata=0.10.8
+  - scanpy
+  - joblib
+  - goatools
+  - genomepy
+  - gimmemotifs

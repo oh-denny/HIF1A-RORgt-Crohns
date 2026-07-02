@@ -1,0 +1,7 @@
+celloracle==0.20.0
+numpy==1.26.4
+pandas==1.5.3
+matplotlib<3.7
+anndata==0.10.8
+scanpy>=1.6
+pyarrow>=0.17
