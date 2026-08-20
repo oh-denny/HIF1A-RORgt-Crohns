@@ -4,7 +4,7 @@ source("functions/aux_functions.r")
 
 ssgsea_results = run_pseudobulk_ssgsea_heatmap(
   seurat_obj = SC_obj_sub,
-  clusters_use = c("4", "5", "6"),
+  clusters_use = c("2", "4", "5", "6"),
   min_cells = 9
 )
 

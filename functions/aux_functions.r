@@ -201,46 +201,128 @@ run_hallmark_fgsea <- function(de, cluster_use, outdir = "pseudobulk_clusters") 
   ))
 }
 
+library(ggplot2)
+library(ggrepel)
+library(dplyr)
 
-fgsea_c5 <- run_hallmark_fgsea(
-  de = res_c5$de,
-  cluster_use = "5"
-)
-
-fgsea_c4 <- run_hallmark_fgsea(
-  de = res_c4$de,
-  cluster_use = "4"
-)
-
-fgsea_c5$fgsea %>%
-  dplyr::select(pathway, NES, pval, padj, size) %>%
-  head(20)
-
-fgsea_c4$fgsea %>%
-  dplyr::select(pathway, NES, pval, padj, size) %>%
-  head(20)
+plot_enrichment_cluster <- function(
+    fgsea_obj,
+    pathway_name,
+    cluster_use,
+    n_labels = 10
+) {
 
 
+  pathway_genes <- fgsea_obj$hallmark_sets[[pathway_name]]
+  ranks <- fgsea_obj$ranks
+  genes_pathway <- intersect(pathway_genes, names(ranks))
 
-plot_enrichment_cluster <- function(fgsea_obj, pathway_name, cluster_use) {
-  
+  gene_df <- data.frame(
+    gene = genes_pathway,
+    stat = ranks[genes_pathway],
+    rank_position = match(genes_pathway, names(ranks))
+  ) %>%
+    arrange(rank_position)
+
+  genes_label <- gene_df %>%
+    slice_head(n = n_labels)
+
   p <- plotEnrichment(
-    pathway = fgsea_obj$hallmark_sets[[pathway_name]],
-    stats = fgsea_obj$ranks
+    pathway = pathway_genes,
+    stats = ranks
   ) +
     labs(
       title = pathway_name,
-      subtitle = paste0("Human cluster ", cluster_use, " (CD vs Healthy)"),
+      subtitle = paste0(
+        "Human cluster ",
+        cluster_use,
+        " (CD vs Healthy)"
+      ),
       x = "Genes ranked by DESeq2 statistic",
       y = "Running enrichment score"
     ) +
     theme_classic(base_size = 13) +
     theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
-      plot.subtitle = element_text(hjust = 0.5)
+      plot.title = element_text(
+        face = "bold",
+        hjust = 0.5
+      ),
+      plot.subtitle = element_text(
+        hjust = 0.5
+      ),
+      plot.margin = margin(
+        t = 20,
+        r = 10,
+        b = 10,
+        l = 10
+      )
     )
-  
-  return(p)
+
+  pb <- ggplot_build(p)
+  layer_sizes <- sapply(
+    pb$data,
+    function(x) {
+      if (all(c("x", "y") %in% colnames(x))) {
+        nrow(x)
+      } else {
+        0
+      }
+    }
+  )
+
+  curve_data <- pb$data[[which.max(layer_sizes)]] %>%
+    arrange(x)
+
+  genes_label$y <- approx(
+    x = curve_data$x,
+    y = curve_data$y,
+    xout = genes_label$rank_position,
+    rule = 2
+  )$y
+
+
+
+  p +
+    geom_point(
+      data = genes_label,
+      aes(
+        x = rank_position,
+        y = y
+      ),
+      inherit.aes = FALSE,
+      size = 2
+    ) +
+
+    geom_text_repel(
+            data = genes_label,
+            aes(
+              x = rank_position,
+              y = y,
+              label = gene
+            ),
+            inherit.aes = FALSE,
+
+            size = 3.2,
+            fontface = "italic",
+
+            direction = "y",
+
+            box.padding = 0.1,
+            point.padding = 0.1,
+
+            force = 2,
+            force_pull = 0.1,
+
+            min.segment.length = 0,
+            segment.size = 0.3,
+
+            max.overlaps = Inf,
+
+            nudge_x = 500,
+            nudge_y = 0.05,
+            seed = 123
+          )
+
 }
 
 
@@ -281,9 +363,10 @@ run_pseudobulk_ssgsea_heatmap = function(
     "Healthy" = "#2D6F6B"
   ),
   cluster_colors = c(
-    "4" = "#B2182B",
-    "5" = "#2166AC",
-    "6" = "#4D9221"
+    "2" = "#2C6B6B",
+    "4" = "#6C7A3A",
+    "5" = "#D8C7AF",
+    "6" = "#162E93"
   ),
   zscore_limit = 2
 ) {
