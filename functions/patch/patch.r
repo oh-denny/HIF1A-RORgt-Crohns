@@ -1,5 +1,10 @@
 # Compatibility patches for running Monocle 2 with recent dplyr/igraph.
 
+
+
+
+
+
 .patch_binding <- function(namespace, name, value) {
   if (!exists(name, envir = namespace, inherits = FALSE)) {
     return(FALSE)

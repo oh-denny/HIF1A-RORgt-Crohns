@@ -32,7 +32,7 @@ colnames(umap_df)[1:2] = c("UMAP_1", "UMAP_2")
 
 meta_df = FetchData(
   SC_obj_sub,
-  vars = c(feature, "group", "seurat_clusters")
+  vars = c(feature, "sample","group", "SCT_snn_res.0.5")
 )
 
 df_plot = cbind(umap_df[rownames(meta_df), ], meta_df)
@@ -41,7 +41,7 @@ colnames(df_plot)[colnames(df_plot) == feature] <- "RORgt_score"
 
 df_plot = df_plot %>%
   mutate(
-    seurat_clusters = factor(seurat_clusters, levels = names(cols)),
+    seurat_clusters = factor(SCT_snn_res.0.5, levels = names(cols)),
     group = factor(group, levels = c("Healthy", "CD"))
   )
 
@@ -89,6 +89,11 @@ p_rorgt_simple = ggplot(df_plot, aes(x = UMAP_1, y = UMAP_2)) +
   )
 
 
-tiff("figures/figure1b.tiff", width = 7, height = 5.5, units = "in", res = 300)
+tiff("figures/figure1b.tiff", width = 5, height = 4.5, units = "in", res = 300)
 p_rorgt_simple
 dev.off()
+
+
+
+
+
