@@ -12,6 +12,8 @@ library(GSVA)
 library(ComplexHeatmap)
 library(circlize)
 library(grid)
+library(tidyr)
+library(UCell)
 
 
 
@@ -684,6 +686,316 @@ run_pseudobulk_ssgsea_heatmap = function(
       heatmap_metadata = meta_hm,
       heatmap_zscore_matrix = mat_samples_z,
       heatmap = heatmap
+    )
+  )
+}
+
+
+
+
+
+
+run_ucell_trajectory = function(
+  SC_obj_sub,
+  cds,
+  hallmarks_interest = c(
+    "HALLMARK_HYPOXIA",
+    "HALLMARK_TNFA_SIGNALING_VIA_NFKB",
+    "HALLMARK_INTERFERON_GAMMA_RESPONSE",
+    "HALLMARK_IL2_STAT5_SIGNALING"
+  ),
+  assay = "SCT",
+  min_genes = 10,
+  save_plots = TRUE,
+  outdir = "figures",
+  width = 6,
+  height = 5,
+  res = 300
+) {
+
+  # -------------------------------------------------------
+  # Preparar objetos
+  # -------------------------------------------------------
+
+  DefaultAssay(SC_obj_sub) = assay
+
+  cells_use = intersect(
+    colnames(SC_obj_sub),
+    colnames(cds)
+  )
+
+  SC_tmp = subset(
+    SC_obj_sub,
+    cells = cells_use
+  )
+
+  cds_tmp = cds[, cells_use]
+
+
+  # -------------------------------------------------------
+  # Metadata da trajetória
+  # -------------------------------------------------------
+
+  df_traj = pData(cds_tmp) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column("cell") %>%
+    dplyr::select(
+      cell,
+      Pseudotime,
+      State,
+      seurat_clusters,
+      group
+    ) %>%
+    dplyr::mutate(
+      seurat_clusters = as.character(seurat_clusters),
+      group = factor(
+        group,
+        levels = c("Healthy", "CD")
+      )
+    )
+
+
+  # -------------------------------------------------------
+  # Coordenadas da trajetória
+  # -------------------------------------------------------
+
+  coords = reducedDimS(cds_tmp) %>%
+    t() %>%
+    as.data.frame()
+
+  colnames(coords)[1:2] = c(
+    "Component1",
+    "Component2"
+  )
+
+  coords = coords %>%
+    tibble::rownames_to_column("cell")
+
+  df_traj = df_traj %>%
+    dplyr::left_join(
+      coords,
+      by = "cell"
+    )
+
+
+  # -------------------------------------------------------
+  # Hallmark gene sets
+  # -------------------------------------------------------
+
+  msig_h = msigdbr(
+    species = "Homo sapiens",
+    category = "H"
+  )
+
+  hallmark_list = msig_h %>%
+    dplyr::filter(
+      gs_name %in% hallmarks_interest
+    ) %>%
+    split(.$gs_name) %>%
+    lapply(
+      function(x) unique(x$gene_symbol)
+    )
+
+  hallmark_list = lapply(
+    hallmark_list,
+    function(x) {
+      intersect(
+        x,
+        rownames(SC_tmp)
+      )
+    }
+  )
+
+  hallmark_list = hallmark_list[
+    lengths(hallmark_list) >= min_genes
+  ]
+
+
+  if (length(hallmark_list) == 0) {
+    stop(
+      "No Hallmark gene sets passed the minimum gene threshold."
+    )
+  }
+
+
+  # -------------------------------------------------------
+  # UCell
+  # -------------------------------------------------------
+
+  SC_tmp = UCell::AddModuleScore_UCell(
+    SC_tmp,
+    features = hallmark_list
+  )
+
+  score_cols_raw = paste0(
+    names(hallmark_list),
+    "_UCell"
+  )
+
+
+  # checagem
+  missing_cols = setdiff(
+    score_cols_raw,
+    colnames(SC_tmp@meta.data)
+  )
+
+  if (length(missing_cols) > 0) {
+    stop(
+      paste(
+        "UCell columns not found:",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+
+
+  # -------------------------------------------------------
+  # Extrair scores
+  # -------------------------------------------------------
+
+  df_scores = SC_tmp@meta.data %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column("cell") %>%
+    dplyr::select(
+      cell,
+      dplyr::all_of(score_cols_raw)
+    )
+
+  colnames(df_scores) = c(
+    "cell",
+    names(hallmark_list)
+  )
+
+
+  # -------------------------------------------------------
+  # Juntar trajetória + UCell
+  # -------------------------------------------------------
+
+  df_traj_scores = df_traj %>%
+    dplyr::left_join(
+      df_scores,
+      by = "cell"
+    )
+
+
+  # -------------------------------------------------------
+  # Função interna para plot
+  # -------------------------------------------------------
+
+  plot_signature = function(
+    signature,
+    legend_name = signature
+  ) {
+
+    ggplot(
+      df_traj_scores,
+      aes(
+        x = Component1,
+        y = Component2,
+        color = .data[[signature]]
+      )
+    ) +
+      geom_point(
+        size = 0.5,
+        alpha = 0.8
+      ) +
+      scale_color_viridis_c(
+        option = "magma",
+        name = legend_name
+      ) +
+      theme_classic(
+        base_size = 14
+      ) +
+      labs(
+        x = "Component 1",
+        y = "Component 2"
+      ) +
+      theme(
+        plot.title = element_text(
+          hjust = 0.5,
+          size = 16
+        )
+      )
+  }
+
+
+  # -------------------------------------------------------
+  # Criar plots
+  # -------------------------------------------------------
+
+  plot_names = names(hallmark_list)
+
+  plots = lapply(
+    plot_names,
+    function(signature) {
+
+      legend_name = signature %>%
+        gsub("^HALLMARK_", "", x = .) %>%
+        gsub("_", " ", x = .)
+
+      plot_signature(
+        signature = signature,
+        legend_name = legend_name
+      )
+    }
+  )
+
+  names(plots) = plot_names
+
+
+  # -------------------------------------------------------
+  # Salvar plots
+  # -------------------------------------------------------
+
+  if (save_plots) {
+
+    if (!dir.exists(outdir)) {
+      dir.create(
+        outdir,
+        recursive = TRUE
+      )
+    }
+
+    for (signature in names(plots)) {
+
+      filename = paste0(
+        outdir,
+        "/",
+        tolower(signature),
+        "_trajectory.tiff"
+      )
+
+      tiff(
+        filename,
+        width = width,
+        height = height,
+        units = "in",
+        res = res
+      )
+
+      print(
+        plots[[signature]]
+      )
+
+      dev.off()
+    }
+  }
+
+
+  # -------------------------------------------------------
+  # Retorno
+  # -------------------------------------------------------
+
+  return(
+    list(
+      SC_tmp = SC_tmp,
+      cds_tmp = cds_tmp,
+      df_traj = df_traj,
+      df_scores = df_scores,
+      df_traj_scores = df_traj_scores,
+      hallmark_list = hallmark_list,
+      score_cols = score_cols_raw,
+      plots = plots
     )
   )
 }
