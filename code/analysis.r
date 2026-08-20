@@ -1,77 +1,4 @@
 
-library(Seurat)
-library(ggplot2)
-library(grid)
-
-seurat_list = readRDS("data/seu_obj/seurat_list.rds")
-
-seurat_list = lapply(seurat_list, function(obj) {
-  obj[["percent.mt"]] = PercentageFeatureSet(obj, pattern = "^MT-")
-  obj
-})
-
-VlnPlot(
-  seurat_list[[1]],
-  features = c("nFeature_RNA", "nCount_RNA", "percent.mt"),
-  ncol = 3
-)
-
-seurat_list_filtered = lapply(seurat_list, function(obj) {
-  subset(
-    obj,
-    subset =
-      nFeature_RNA > 500 &
-      nFeature_RNA < 6000 &
-      percent.mt < 15
-  )
-})
-
-seurat_list_sct = lapply(seurat_list_filtered, function(obj) {
-  SCTransform(
-    obj,
-    assay = "RNA",
-    new.assay.name = "SCT",
-    vars.to.regress = "percent.mt",
-    vst.flavor = "v2",
-    verbose = TRUE
-  )
-})
-
-
-SC_obj = merge(
-  x = seurat_list_sct[[1]],
-  y = seurat_list_sct[-1],
-  add.cell.ids = names(seurat_list_sct)
-)
-
-DefaultAssay(SC_obj) = "SCT"
-saveRDS(SC_obj, "data/seu_obj/SC_obj_merged_SCT.rds")
-
-SC_obj = readRDS("data/seu_obj/SC_obj_merged_SCT.rds")
-
-
-table(SC_obj$group)
-table(SC_obj$sample)
-
-features = SelectIntegrationFeatures(
-  object.list = seurat_list_sct,
-  nfeatures = 3000
-)
-
-features = SelectIntegrationFeatures(SC_obj, nfeatures = 3000)
-VariableFeatures(SC_obj) = features
-VariableFeatures(SC_obj) = rownames(SC_obj[["SCT"]]@scale.data)
-
-SC_obj = RunPCA(SC_obj, assay = "SCT", verbose = FALSE, features = features)
-ElbowPlot(SC_obj)
-
-SC_obj = FindNeighbors(SC_obj, dims = 1:15)
-SC_obj = FindClusters(SC_obj, resolution = 0.5)
-SC_obj = RunUMAP(SC_obj, dims = 1:15)
-
-saveRDS(SC_obj, "data/seu_obj/SC_obj_clustered.rds")
-SC_obj = readRDS("data/seu_obj/SC_obj_clustered.rds")
-
 
 httpgd::hgd()
 
@@ -214,9 +141,12 @@ cols = c(
 )
 
 DimPlot(SC_obj_sub, group.by = "group")
+
+tiff("figures/umap_foxp3_subclusters.tiff", width = 5, height = 4, units = "in", res = 300)
 DimPlot(SC_obj_sub, group.by = "seurat_clusters",
   label = FALSE,
-  cols = cols) +
+  cols = cols,
+  pt.size = 1.5) +
   NoAxes() +
   NoLegend() +
   theme_void() + 
@@ -266,8 +196,8 @@ DimPlot(SC_obj_sub, group.by = "seurat_clusters",
       arrow = arrow(length = unit(0.18, "cm")),
       gp = gpar(lwd = 3)
     )
-  )
-
+  ) 
+dev.off()
 
 
 
@@ -307,8 +237,9 @@ FeaturePlot(
 
 VlnPlot(
   SC_obj_sub,
-  features = c("RORC", "IL23R", "CCR6", "  MAF", "AHR"),
-  stack = F
+  features = c("IL2RA", "IKZF2", "ICOS", "CTLA4", "PDCD1", "FOXP3", "LAG3", "HAVCR2", "AHR", "HIF1A", "RORA"),
+  stack = T,
+  split.by = "group"
 )
 
 
@@ -399,74 +330,6 @@ ggplot(donut_df, aes(x = 2, y = percent, fill = group)) +
 
 
 
-
-library(Seurat)
-library(dplyr)
-library(ggplot2)
-library(ggalluvial)
-
-DefaultAssay(SC_obj_sub) <- "SCT"
-Idents(SC_obj_sub) <- "seurat_clusters"
-
-df_hif <- FetchData(
-  SC_obj_sub,
-  vars = c("HIF1A", "seurat_clusters", "group", "sample")
-)
-
-df_hif <- df_hif %>%
-  mutate(
-    HIF1A_pos = HIF1A > 0,
-    HIF1A_status = ifelse(HIF1A_pos, "HIF1A+", "HIF1A-"),
-    seurat_clusters = factor(seurat_clusters, levels = sort(unique(seurat_clusters))),
-    group = factor(group, levels = c("Healthy", "CD")),
-    HIF1A_status = factor(HIF1A_status, levels = c("HIF1A-", "HIF1A+"))
-  )
-
-alluvial_df <- df_hif %>%
-  count(group, seurat_clusters, HIF1A_status, name = "n")
-
-ggplot(
-  alluvial_df,
-  aes(
-    axis1 = group,
-    axis2 = seurat_clusters,
-    axis3 = HIF1A_status,
-    y = n
-  )
-) +
-  geom_alluvium(
-    aes(fill = group),
-    alpha = 0.75,
-    width = 1/12,
-    color = "gray80"
-  ) +
-  geom_stratum(
-    width = 1/12,
-    color = "gray40",
-    fill = "gray95"
-  ) +
-  scale_x_discrete(
-    limits = c("Group", "FOXP3+ subcluster", "HIF1A status"),
-    expand = c(0.08, 0.08)
-  ) +
-  scale_fill_manual(
-    values = c(
-      "Healthy" = "#1F5C5C",
-      "CD" = "#E18487"
-    )
-  ) +
-  labs(
-    title = "Flow of FOXP3+ cells by group, subcluster and HIF1A expression",
-    y = "Number of cells",
-    fill = "Group"
-  ) +
-  theme_classic(base_size = 13) +
-  theme(
-    plot.title = element_text(face = "bold", hjust = 0.5),
-    axis.title.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank()
-  )
 
 
 

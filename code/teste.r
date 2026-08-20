@@ -7,8 +7,6 @@ library(dplyr)
 library(ggplot2)
 
 feature <- "RORgt_Treg_Score1" 
-# feature <- "RORC"  # humano, caso seja gene
-# feature <- "Rorc"  # mouse, caso seja gene
 
 cols <- c(
   "0" = "#A61C4B",
