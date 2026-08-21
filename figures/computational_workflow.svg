@@ -84,10 +84,11 @@
     <path d="M483 189 H559 L532 226 V272 H510 V226 Z" fill="#E8F0EF" stroke="#1F5C5C" stroke-width="2" stroke-linejoin="round"/>
     <circle cx="521" cy="291" r="8" fill="#1F5C5C"/><circle cx="500" cy="309" r="6" fill="#1F5C5C" opacity=".65"/><circle cx="542" cy="310" r="7" fill="#1F5C5C" opacity=".8"/>
     <text class="label" x="338" y="367">QC + SCTransform</text>
-    <text class="small" x="338" y="393">Sample-level normalization</text>
-    <line x1="338" y1="421" x2="564" y2="421" stroke="#D9E0E4"/>
-    <text class="tiny" x="338" y="447">500 &lt; detected genes &lt; 6,000</text>
-    <text class="tiny" x="338" y="469">Mitochondrial reads &lt; 15%</text>
+    <text class="small" x="338" y="393">Independent SCTransform per sample</text>
+    <text class="tiny" x="338" y="414">merge → PCA → clustering</text>
+    <line x1="338" y1="430" x2="564" y2="430" stroke="#D9E0E4"/>
+    <text class="tiny" x="338" y="453">500 &lt; nFeature_RNA &lt; 6,000</text>
+    <text class="tiny" x="338" y="475">Mitochondrial transcripts &lt; 15%</text>
   </g>
 
   <!-- Stage 3: FOXP3 landscape -->
@@ -107,11 +108,11 @@
       <text class="tiny" x="12" y="228">Clusters 0–6 · seven transcriptional states</text>
     </g>
 
-    <rect x="650" y="425" width="108" height="34" rx="17" fill="#F7ECEF"/>
-    <text class="label" x="672" y="448">RORγt</text>
-    <rect x="768" y="425" width="108" height="34" rx="17" fill="#E8F0EF"/>
-    <text class="label" x="792" y="448" font-style="italic">HIF1A</text>
-    <text class="tiny" x="650" y="483">Transcript / module-score characterization</text>
+    <text class="small" x="650" y="416" font-weight="700">Transcriptomic characterization</text>
+    <circle cx="657" cy="443" r="6" fill="#A61C4B"/>
+    <text x="670" y="448" font-size="13"><tspan font-weight="700">RORγt:</tspan> detectable <tspan font-style="italic">RORC</tspan> + module score</text>
+    <circle cx="657" cy="470" r="6" fill="#1F5C5C"/>
+    <text x="670" y="475" font-size="13"><tspan font-style="italic" font-weight="700">HIF1A:</tspan> detectable transcript</text>
   </g>
 
   <!-- Stage 4: pathway enrichment -->
@@ -121,7 +122,8 @@
 
     <!-- ssGSEA heatmap -->
     <g transform="translate(962 172)">
-      <text x="0" y="0" font-size="13" font-weight="700">Pseudobulk ssGSEA</text>
+      <text x="0" y="0" font-size="12" font-weight="700">Sample-aware</text>
+      <text x="0" y="15" font-size="11" fill="#53636D">pseudobulk ssGSEA</text>
       <g transform="translate(0 18)">
         <rect x="0" y="0" width="25" height="25" fill="#2166AC"/><rect x="28" y="0" width="25" height="25" fill="#F0F1F1"/><rect x="56" y="0" width="25" height="25" fill="#D17A74"/><rect x="84" y="0" width="25" height="25" fill="#B2182B"/>
         <rect x="0" y="28" width="25" height="25" fill="#7FA6C5"/><rect x="28" y="28" width="25" height="25" fill="#D8E2E8"/><rect x="56" y="28" width="25" height="25" fill="#C95650"/><rect x="84" y="28" width="25" height="25" fill="#F2D8D6"/>
@@ -133,14 +135,15 @@
 
     <!-- Ranked GSEA curve -->
     <g transform="translate(1090 172)">
-      <text x="4" y="0" font-size="13" font-weight="700">DESeq2 + GSEA</text>
+      <text x="4" y="0" font-size="13" font-weight="700">DESeq2 pseudobulk</text>
+      <text x="4" y="15" font-size="11" fill="#53636D">+ preranked fgsea</text>
       <path d="M0 127 H112 M0 127 V25" stroke="#A9B5BC" stroke-width="1.5" fill="none"/>
       <path d="M2 113 C17 106, 20 75, 34 66 C49 56, 56 83, 69 74 C83 65, 84 36, 110 30" fill="none" stroke="#A61C4B" stroke-width="3"/>
       <g stroke="#2C6B6B" stroke-width="1.5"><line x1="10" y1="130" x2="10" y2="139"/><line x1="18" y1="130" x2="18" y2="139"/><line x1="31" y1="130" x2="31" y2="139"/><line x1="51" y1="130" x2="51" y2="139"/><line x1="74" y1="130" x2="74" y2="139"/><line x1="88" y1="130" x2="88" y2="139"/><line x1="105" y1="130" x2="105" y2="139"/></g>
     </g>
     <rect x="962" y="404" width="112" height="34" rx="17" fill="#E8F0EF"/><text class="small" x="986" y="426" font-weight="700">Hypoxia</text>
     <rect x="1084" y="404" width="128" height="34" rx="17" fill="#F7ECEF"/><text class="small" x="1099" y="426" font-weight="700">Inflammation</text>
-    <text class="tiny" x="962" y="468">Sample-aware, complementary analyses</text>
+    <text class="tiny" x="962" y="468">Hypoxia and inflammatory programs</text>
   </g>
 
   <!-- Stage 5: pseudotime -->
@@ -190,9 +193,12 @@
         <path d="M22 68 l22 -18"/><path d="M65 72 l24 -12"/><path d="M111 70 l20 -22"/><path d="M155 78 l28 -16"/><path d="M202 80 l21 -20"/><path d="M243 73 l18 -26"/>
       </g>
     </g>
+    <text x="1580" y="425" font-size="11" font-weight="700" fill="#53636D">PROPAGATION</text>
+    <text x="1668" y="425" font-size="11" font-weight="700" fill="#53636D">VECTOR FIELD</text>
+    <text x="1754" y="425" font-size="11" font-weight="700" fill="#53636D">PERTURB. SCORE</text>
     <text x="1580" y="459" font-size="20" font-weight="700"><tspan font-style="italic">HIF1A</tspan> in silico knockout</text>
-    <text class="small" x="1580" y="488">Predicted state-dependent</text>
-    <text class="small" x="1580" y="510">transcriptional shifts</text>
+    <text class="small" x="1580" y="488" font-weight="700">Predicted state-dependent response</text>
+    <text class="tiny" x="1580" y="510">Transcriptional-state shifts</text>
   </g>
 
   <!-- Interpretive footer -->

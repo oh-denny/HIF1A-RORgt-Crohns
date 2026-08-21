@@ -15,7 +15,7 @@ Code and supporting documentation for the analyses reported in the manuscript:
        width="100%">
 </p>
 
-**Computational workflow.** Publicly available ileal CD4⁺ T-cell scRNA-seq count matrices from healthy donors and patients with Crohn's disease (GSE209832) were reanalyzed to characterize *FOXP3*⁺ T-cell states, RORγt- and *HIF1A*-associated transcriptional programs, pathway enrichment, computational pseudotemporal organization, and the predicted effects of an *HIF1A* in silico knockout using CellOracle.
+**Computational workflow.** Publicly available processed gene-expression count matrices from ileal CD4⁺ T cells of healthy donors and patients with Crohn's disease (GSE209832) were reanalyzed using per-sample SCTransform normalization followed by merging, *FOXP3*⁺ T-cell reclustering, transcriptomic RORγt/*HIF1A* characterization, pathway analysis, computational pseudotime, and CellOracle prediction of the state-dependent response to an *HIF1A* in silico knockout.
 
 An editable [SVG](figures/computational_workflow.svg) and a high-resolution [PNG](figures/computational_workflow.png) are provided in the `figures/` directory.
 
@@ -29,8 +29,8 @@ The figure above summarizes the major analytical stages. Script-level inputs and
 
 | Path | Purpose | Main output |
 |---|---|---|
-| [`code/data_download`](code/data_download) | Downloads and organizes the GSE209832 single-cell dataset | Raw HDF5 matrices and sample metadata |
-| [`code/processing`](code/processing) | Seurat quality control, SCTransform normalization, integration, and clustering | Processed Seurat objects |
+| [`code/data_download`](code/data_download) | Downloads and organizes the GSE209832 single-cell dataset | GEO-supplied HDF5 count matrices and sample metadata |
+| [`code/processing`](code/processing) | Seurat quality control, independent per-sample SCTransform normalization, merging, PCA, and clustering | Processed Seurat objects |
 | [`code/Figure_1`](code/Figure_1) | FOXP3⁺ subclustering, RORγt/HIF1A analyses, pseudobulk differential expression, and enrichment | Figure 1 panels and result tables |
 | [`code/Figure_6`](code/Figure_6) | Monocle trajectory, pathway scores, expression heatmap, and perturbation analysis | Figure 6 panels |
 | [`code/Figure_6/figure_6D_E_F/celloracle`](code/Figure_6/figure_6D_E_F/celloracle) | CellOracle network construction and *HIF1A* knockout simulation | Figures 6D–F and intermediate CellOracle objects |
@@ -44,8 +44,8 @@ The figure above summarizes the major analytical stages. Script-level inputs and
 | Figure 1A | [`code/Figure_1/figure_1A/figure_1A.r`](code/Figure_1/figure_1A/figure_1A.r) | UMAP of FOXP3⁺ T-cell subclusters |
 | Figure 1B | [`code/Figure_1/Figure_1B/figure_1B.r`](code/Figure_1/Figure_1B/figure_1B.r) | Distribution of RORγt-high Tregs by study group |
 | Figure 1C | [`code/Figure_1/Figure_1C/figure_1C.r`](code/Figure_1/figure_1C/figure_1C.r) | Split violin plots of Treg- and HIF-related markers |
-| Figure 1D | [`code/Figure_1/Figure_1D/figure_1D.r`](code/Figure_1/figure_1D/figure_1D.r) | Alluvial plot connecting group, FOXP3⁺ subcluster, and HIF1A status |
-| Figure 1E | [`code/Figure_1/Figure_1E/figure_1E.r`](code/Figure_1/figure_1E/figure_1E.r) | Donut charts showing the distribution of HIF1A⁺ cells |
+| Figure 1D | [`code/Figure_1/Figure_1D/figure_1D.r`](code/Figure_1/figure_1D/figure_1D.r) | Alluvial plot connecting group, FOXP3⁺ subcluster, and detectable *HIF1A* transcript status |
+| Figure 1E | [`code/Figure_1/Figure_1E/figure_1E.r`](code/Figure_1/figure_1E/figure_1E.r) | Donut charts showing cells with detectable *HIF1A* transcript |
 | Figure 1F | [`code/Figure_1/Figure_1F/figure_1F.r`](code/Figure_1/figure_1F/figure_1F.r) | Pseudobulk ssGSEA heatmap for selected clusters |
 | Figure 1G | [`code/Figure_1/Figure_1G/figure_1G.r`](code/Figure_1/figure_1G/figure_1G.r) | Pseudobulk DESeq2 and Hallmark fgsea analyses, including hypoxia enrichment |
 | Figure 6 trajectory input | [`code/Figure_6/trajectory.r`](code/Figure_6/trajectory.r) | Ordered Monocle 2 CellDataSet used by the trajectory panels |

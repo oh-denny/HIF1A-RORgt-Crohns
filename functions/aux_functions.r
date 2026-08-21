@@ -26,16 +26,10 @@ run_pb_deseq_cluster <- function(
     outdir = "pseudobulk_clusters"
 ) {
   
-  message("Rodando pseudobulk para cluster ", cluster_use)
-  
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
-  
   cells_use <- meta_all %>%
     filter(cluster == cluster_use) %>%
     pull(cell)
-  
-  message("Número de células no cluster ", cluster_use, ": ", length(cells_use))
-  
   counts_cl <- counts_mat[, cells_use, drop = FALSE]
   
   meta_cl <- meta_all %>%
@@ -83,11 +77,11 @@ run_pb_deseq_cluster <- function(
   print(table(pb_meta_cl_filt$group))
   
   if (length(unique(pb_meta_cl_filt$group)) < 2) {
-    stop("Cluster ", cluster_use, " não tem os dois grupos após filtro.")
+    stop("Cluster ", cluster_use, " Error.")
   }
   
   if (any(table(pb_meta_cl_filt$group) < 2)) {
-    warning("Cluster ", cluster_use, " tem menos de 2 amostras em algum grupo. Resultado será exploratório.")
+    warning("Cluster ", cluster_use, " There are fewer than 2 samples in any group. The results will be exploratory.")
   }
   
   counts_use <- pb_counts_cl_filt
@@ -160,9 +154,7 @@ run_hallmark_fgsea <- function(de, cluster_use, outdir = "pseudobulk_clusters") 
     dplyr::select(gene, stat) %>%
     tibble::deframe()
   
-  # remover genes duplicados, se houver
   ranks <- ranks[!duplicated(names(ranks))]
-  
   msig_hallmark <- msigdbr(
     species = "Homo sapiens",
     category = "H"
@@ -182,8 +174,6 @@ run_hallmark_fgsea <- function(de, cluster_use, outdir = "pseudobulk_clusters") 
   ) %>%
     as.data.frame() %>%
     dplyr::arrange(padj)
-  
-  # criar versão salvável do resultado
   fgsea_to_save <- fgsea_res %>%
     dplyr::mutate(
       leadingEdge = sapply(leadingEdge, function(x) paste(x, collapse = ";"))
@@ -213,7 +203,6 @@ plot_enrichment_cluster <- function(
     cluster_use,
     n_labels = 10
 ) {
-
 
   pathway_genes <- fgsea_obj$hallmark_sets[[pathway_name]]
   ranks <- fgsea_obj$ranks
@@ -303,37 +292,22 @@ plot_enrichment_cluster <- function(
               label = gene
             ),
             inherit.aes = FALSE,
-
             size = 3.2,
             fontface = "italic",
-
             direction = "y",
-
             box.padding = 0.1,
             point.padding = 0.1,
-
             force = 2,
             force_pull = 0.1,
-
             min.segment.length = 0,
             segment.size = 0.3,
-
             max.overlaps = Inf,
-
             nudge_x = 500,
             nudge_y = 0.05,
             seed = 123
           )
 
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -713,10 +687,6 @@ run_ucell_trajectory = function(
   res = 300
 ) {
 
-  # -------------------------------------------------------
-  # Preparar objetos
-  # -------------------------------------------------------
-
   DefaultAssay(SC_obj_sub) = assay
 
   cells_use = intersect(
@@ -728,14 +698,7 @@ run_ucell_trajectory = function(
     SC_obj_sub,
     cells = cells_use
   )
-
   cds_tmp = cds[, cells_use]
-
-
-  # -------------------------------------------------------
-  # Metadata da trajetória
-  # -------------------------------------------------------
-
   df_traj = pData(cds_tmp) %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell") %>%
@@ -753,12 +716,6 @@ run_ucell_trajectory = function(
         levels = c("Healthy", "CD")
       )
     )
-
-
-  # -------------------------------------------------------
-  # Coordenadas da trajetória
-  # -------------------------------------------------------
-
   coords = reducedDimS(cds_tmp) %>%
     t() %>%
     as.data.frame()
@@ -776,12 +733,6 @@ run_ucell_trajectory = function(
       coords,
       by = "cell"
     )
-
-
-  # -------------------------------------------------------
-  # Hallmark gene sets
-  # -------------------------------------------------------
-
   msig_h = msigdbr(
     species = "Homo sapiens",
     category = "H"
@@ -817,11 +768,6 @@ run_ucell_trajectory = function(
     )
   }
 
-
-  # -------------------------------------------------------
-  # UCell
-  # -------------------------------------------------------
-
   SC_tmp = UCell::AddModuleScore_UCell(
     SC_tmp,
     features = hallmark_list
@@ -831,9 +777,6 @@ run_ucell_trajectory = function(
     names(hallmark_list),
     "_UCell"
   )
-
-
-  # checagem
   missing_cols = setdiff(
     score_cols_raw,
     colnames(SC_tmp@meta.data)
@@ -848,11 +791,6 @@ run_ucell_trajectory = function(
     )
   }
 
-
-  # -------------------------------------------------------
-  # Extrair scores
-  # -------------------------------------------------------
-
   df_scores = SC_tmp@meta.data %>%
     as.data.frame() %>%
     tibble::rownames_to_column("cell") %>%
@@ -866,21 +804,11 @@ run_ucell_trajectory = function(
     names(hallmark_list)
   )
 
-
-  # -------------------------------------------------------
-  # Juntar trajetória + UCell
-  # -------------------------------------------------------
-
   df_traj_scores = df_traj %>%
     dplyr::left_join(
       df_scores,
       by = "cell"
     )
-
-
-  # -------------------------------------------------------
-  # Função interna para plot
-  # -------------------------------------------------------
 
   plot_signature = function(
     signature,
@@ -918,11 +846,6 @@ run_ucell_trajectory = function(
       )
   }
 
-
-  # -------------------------------------------------------
-  # Criar plots
-  # -------------------------------------------------------
-
   plot_names = names(hallmark_list)
 
   plots = lapply(
@@ -941,11 +864,6 @@ run_ucell_trajectory = function(
   )
 
   names(plots) = plot_names
-
-
-  # -------------------------------------------------------
-  # Salvar plots
-  # -------------------------------------------------------
 
   if (save_plots) {
 
@@ -980,11 +898,6 @@ run_ucell_trajectory = function(
       dev.off()
     }
   }
-
-
-  # -------------------------------------------------------
-  # Retorno
-  # -------------------------------------------------------
 
   return(
     list(
