@@ -3,7 +3,7 @@
 Code and supporting documentation for the analyses reported in the manuscript:
 
 > **HIF-1α integrates metabolic and immunoregulatory programs in RORγt⁺ regulatory T cells during intestinal inflammation**<br>
-> Marcella Cipelli*, Eloísa M. da Silva, Luísa Menezes-Silva, Barbara N. Padovani, Mariana A. Amaral, Laís C. Paredes, Bruno G. Nunes, Victor Y. Yariwake, José Arimatéia O. N. Neto, Natalia N. Bos, Anthony G. da Silveira, João Vinicius H. da Silva, Raquel S. Vieira, Suemy M. Yamada, Luis Felipe S. Moreira, Benedito Matheus dos Santos, Aline Ignacio, Maria Fernanda Forni, Orestes Foresto-Neto, Jefferson Antonio Leite, Marco Aurélio R. Vinolo, Dennyson Leandro M. da Fonseca, Sandra Marcia Muxel, Matthias Lochner, Vinicius Andrade-Oliveira, and Niels O. S. Camara*.
+> Marcella Cipelli*, Eloísa M. da Silva, Luísa Menezes-Silva, Barbara N. Padovani, Mariana A. Amaral, Laís C. Paredes, Bruno G. Nunes, Victor Y. Yariwake, José Arimatéia O. N. Neto, Natalia N. Bos, Anthony G. da Silveira, João Vinicius H. da Silva, Raquel S. Vieira, Suemy M. Yamada, Luis Felipe S. Moreira, Benedito Matheus dos Santos, Aline Ignacio, Maria Fernanda Forni, Orestes Foresto-Neto, Jefferson Antonio Leite, Marco Aurélio R. Vinolo, Dennyson Leandro M Fonseca, Sandra Marcia Muxel, Matthias Lochner, Vinicius Andrade-Oliveira, and Niels O. S. Camara*.
 
 `*` Corresponding authors.
 
