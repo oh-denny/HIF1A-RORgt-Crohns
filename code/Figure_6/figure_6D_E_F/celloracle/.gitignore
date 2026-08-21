@@ -1,0 +1,2 @@
+# Keep the documentation PDF versioned even though the repository ignores *.pdf globally.
+!output/pdf/CellOracle_HIF1A_pipeline_guide.pdf
