@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="650" viewBox="0 0 1920 650" role="img" aria-labelledby="title desc">
+  <title id="title">Computational workflow for human ileal CD4-positive T-cell single-cell RNA-sequencing reanalysis</title>
+  <desc id="desc">Six-stage workflow from public GSE209832 matrices through quality control, FOXP3-positive T-cell reclustering, pathway enrichment, Monocle 2 pseudotime, and CellOracle HIF1A in silico knockout.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#52616B"/>
+    </marker>
+    <marker id="arrow-teal" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#1F5C5C"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #20313B; }
+      .stage-no { font-size: 16px; font-weight: 700; letter-spacing: 1.4px; fill: #6B7780; }
+      .stage-title { font-size: 23px; font-weight: 700; }
+      .label { font-size: 17px; font-weight: 600; }
+      .small { font-size: 14px; fill: #53636D; }
+      .tiny { font-size: 12px; fill: #64747D; }
+      .connector { stroke: #52616B; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .fine { stroke: #71808A; stroke-width: 1.6; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="650" fill="#FFFFFF"/>
+  <text x="42" y="46" font-size="26" font-weight="700">Human ileal scRNA-seq reanalysis and <tspan font-style="italic">HIF1A</tspan> perturbation workflow</text>
+  <line x1="42" y1="63" x2="1878" y2="63" stroke="#D9E0E4" stroke-width="2"/>
+
+  <!-- Major-stage connectors -->
+  <path class="connector" d="M292 310 H326"/>
+  <path class="connector" d="M594 310 H628"/>
+  <path class="connector" d="M908 310 H942"/>
+  <path class="connector" d="M1224 310 H1258"/>
+  <path class="connector" d="M1514 310 H1548"/>
+
+  <!-- Stage 1: public data -->
+  <g id="public-data">
+    <text class="stage-no" x="42" y="100">01 · PUBLIC DATA</text>
+    <text class="stage-title" x="42" y="130">Human ileal CD4⁺ T cells</text>
+
+    <!-- Stylized intestinal loop -->
+    <path d="M80 183 C52 158, 48 217, 80 211 C113 205, 111 257, 78 250 C45 243, 48 299, 83 290 C118 281, 120 333, 82 330"
+          fill="none" stroke="#9B5E68" stroke-width="13" stroke-linecap="round"/>
+    <path d="M136 183 C165 158, 169 217, 137 211 C104 205, 106 257, 139 250 C172 243, 169 299, 134 290 C99 281, 97 333, 135 330"
+          fill="none" stroke="#D59CA4" stroke-width="13" stroke-linecap="round"/>
+    <path d="M81 181 C95 166, 123 166, 137 181 M82 331 C96 344, 121 344, 135 330"
+          fill="none" stroke="#9B5E68" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- Downloaded count matrices -->
+    <g transform="translate(183 175)">
+      <rect x="0" y="0" width="76" height="88" rx="5" fill="#F4F7F8" stroke="#A9B5BC" stroke-width="1.5"/>
+      <g fill="#1F5C5C">
+        <rect x="12" y="14" width="8" height="8"/><rect x="27" y="14" width="8" height="8" opacity=".45"/><rect x="42" y="14" width="8" height="8" opacity=".7"/><rect x="57" y="14" width="8" height="8" opacity=".25"/>
+        <rect x="12" y="29" width="8" height="8" opacity=".35"/><rect x="27" y="29" width="8" height="8"/><rect x="42" y="29" width="8" height="8" opacity=".2"/><rect x="57" y="29" width="8" height="8" opacity=".7"/>
+        <rect x="12" y="44" width="8" height="8" opacity=".7"/><rect x="27" y="44" width="8" height="8" opacity=".25"/><rect x="42" y="44" width="8" height="8"/><rect x="57" y="44" width="8" height="8" opacity=".45"/>
+        <rect x="12" y="59" width="8" height="8" opacity=".2"/><rect x="27" y="59" width="8" height="8" opacity=".65"/><rect x="42" y="59" width="8" height="8" opacity=".4"/><rect x="57" y="59" width="8" height="8"/>
+      </g>
+    </g>
+    <text class="label" x="42" y="386">GSE209832</text>
+    <text class="small" x="42" y="408">Processed GEO count matrices</text>
+    <circle cx="54" cy="448" r="7" fill="#1F5C5C"/><text class="small" x="69" y="453">Healthy</text>
+    <circle cx="151" cy="448" r="7" fill="#E18487"/><text class="small" x="166" y="453">Crohn’s disease</text>
+    <rect x="42" y="482" width="208" height="36" rx="18" fill="#F3F6F7"/>
+    <path d="M58 494 v13 M52 501 l6 6 6-6" stroke="#52616B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text class="small" x="75" y="505">Publicly available data</text>
+  </g>
+
+  <!-- Stage 2: QC -->
+  <g id="quality-control">
+    <text class="stage-no" x="338" y="100">02 · PREPROCESSING</text>
+    <text class="stage-title" x="338" y="130">Quality control</text>
+
+    <!-- Matrix into filter -->
+    <g transform="translate(349 175)">
+      <rect x="0" y="0" width="92" height="106" rx="5" fill="#F4F7F8" stroke="#A9B5BC" stroke-width="1.5"/>
+      <g fill="#7A8992">
+        <circle cx="16" cy="18" r="5"/><circle cx="37" cy="18" r="5" opacity=".3"/><circle cx="58" cy="18" r="5" opacity=".65"/><circle cx="79" cy="18" r="5" opacity=".25"/>
+        <circle cx="16" cy="40" r="5" opacity=".35"/><circle cx="37" cy="40" r="5"/><circle cx="58" cy="40" r="5" opacity=".25"/><circle cx="79" cy="40" r="5" opacity=".7"/>
+        <circle cx="16" cy="62" r="5" opacity=".75"/><circle cx="37" cy="62" r="5" opacity=".25"/><circle cx="58" cy="62" r="5"/><circle cx="79" cy="62" r="5" opacity=".45"/>
+        <circle cx="16" cy="84" r="5" opacity=".2"/><circle cx="37" cy="84" r="5" opacity=".65"/><circle cx="58" cy="84" r="5" opacity=".4"/><circle cx="79" cy="84" r="5"/>
+      </g>
+    </g>
+    <path d="M450 228 H474" stroke="#52616B" stroke-width="2" marker-end="url(#arrow)"/>
+    <!-- Funnel -->
+    <path d="M483 189 H559 L532 226 V272 H510 V226 Z" fill="#E8F0EF" stroke="#1F5C5C" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="521" cy="291" r="8" fill="#1F5C5C"/><circle cx="500" cy="309" r="6" fill="#1F5C5C" opacity=".65"/><circle cx="542" cy="310" r="7" fill="#1F5C5C" opacity=".8"/>
+    <text class="label" x="338" y="367">QC + SCTransform</text>
+    <text class="small" x="338" y="393">Sample-level normalization</text>
+    <line x1="338" y1="421" x2="564" y2="421" stroke="#D9E0E4"/>
+    <text class="tiny" x="338" y="447">500 &lt; detected genes &lt; 6,000</text>
+    <text class="tiny" x="338" y="469">Mitochondrial reads &lt; 15%</text>
+  </g>
+
+  <!-- Stage 3: FOXP3 landscape -->
+  <g id="treg-landscape">
+    <text class="stage-no" x="640" y="100">03 · TREG LANDSCAPE</text>
+    <text class="stage-title" x="640" y="130"><tspan font-style="italic">FOXP3</tspan>⁺ T-cell reclustering</text>
+
+    <!-- UMAP clusters, colors 0–6 from repository -->
+    <g transform="translate(652 161)">
+      <g fill="#A61C4B"><circle cx="46" cy="58" r="11"/><circle cx="61" cy="49" r="9"/><circle cx="66" cy="68" r="10"/><circle cx="40" cy="77" r="8"/><circle cx="78" cy="58" r="7"/></g>
+      <g fill="#0F6C84"><circle cx="118" cy="40" r="10"/><circle cx="134" cy="48" r="11"/><circle cx="126" cy="63" r="8"/><circle cx="148" cy="61" r="9"/><circle cx="110" cy="57" r="7"/></g>
+      <g fill="#2C6B6B"><circle cx="188" cy="71" r="11"/><circle cx="205" cy="64" r="9"/><circle cx="211" cy="83" r="11"/><circle cx="184" cy="91" r="8"/><circle cx="225" cy="73" r="7"/></g>
+      <g fill="#AEB8B7"><circle cx="87" cy="116" r="11"/><circle cx="104" cy="112" r="8"/><circle cx="98" cy="131" r="10"/><circle cx="74" cy="131" r="8"/><circle cx="114" cy="127" r="7"/></g>
+      <g fill="#6C7A3A"><circle cx="153" cy="130" r="11"/><circle cx="168" cy="120" r="9"/><circle cx="176" cy="140" r="10"/><circle cx="147" cy="150" r="8"/><circle cx="187" cy="130" r="7"/></g>
+      <g fill="#D8C7AF" stroke="#BDA98E" stroke-width="1"><circle cx="43" cy="162" r="11"/><circle cx="60" cy="154" r="9"/><circle cx="68" cy="173" r="10"/><circle cx="38" cy="181" r="8"/><circle cx="79" cy="162" r="7"/></g>
+      <g fill="#162E93"><circle cx="125" cy="185" r="11"/><circle cx="143" cy="178" r="9"/><circle cx="151" cy="196" r="10"/><circle cx="120" cy="204" r="8"/><circle cx="161" cy="185" r="7"/></g>
+      <text class="tiny" x="12" y="228">Clusters 0–6 · seven transcriptional states</text>
+    </g>
+
+    <rect x="650" y="425" width="108" height="34" rx="17" fill="#F7ECEF"/>
+    <text class="label" x="672" y="448">RORγt</text>
+    <rect x="768" y="425" width="108" height="34" rx="17" fill="#E8F0EF"/>
+    <text class="label" x="792" y="448" font-style="italic">HIF1A</text>
+    <text class="tiny" x="650" y="483">Transcript / module-score characterization</text>
+  </g>
+
+  <!-- Stage 4: pathway enrichment -->
+  <g id="pathway-enrichment">
+    <text class="stage-no" x="954" y="100">04 · FUNCTIONAL PROGRAMS</text>
+    <text class="stage-title" x="954" y="130">Pathway enrichment</text>
+
+    <!-- ssGSEA heatmap -->
+    <g transform="translate(962 172)">
+      <text x="0" y="0" font-size="13" font-weight="700">Pseudobulk ssGSEA</text>
+      <g transform="translate(0 18)">
+        <rect x="0" y="0" width="25" height="25" fill="#2166AC"/><rect x="28" y="0" width="25" height="25" fill="#F0F1F1"/><rect x="56" y="0" width="25" height="25" fill="#D17A74"/><rect x="84" y="0" width="25" height="25" fill="#B2182B"/>
+        <rect x="0" y="28" width="25" height="25" fill="#7FA6C5"/><rect x="28" y="28" width="25" height="25" fill="#D8E2E8"/><rect x="56" y="28" width="25" height="25" fill="#C95650"/><rect x="84" y="28" width="25" height="25" fill="#F2D8D6"/>
+        <rect x="0" y="56" width="25" height="25" fill="#E7A9A5"/><rect x="28" y="56" width="25" height="25" fill="#B2182B"/><rect x="56" y="56" width="25" height="25" fill="#A8C0D3"/><rect x="84" y="56" width="25" height="25" fill="#2166AC"/>
+        <rect x="0" y="84" width="25" height="25" fill="#F2F2F2"/><rect x="28" y="84" width="25" height="25" fill="#CE6963"/><rect x="56" y="84" width="25" height="25" fill="#5D8DB5"/><rect x="84" y="84" width="25" height="25" fill="#E5A19C"/>
+      </g>
+      <text class="tiny" x="0" y="150">Clusters 2, 4, 5, 6</text>
+    </g>
+
+    <!-- Ranked GSEA curve -->
+    <g transform="translate(1090 172)">
+      <text x="4" y="0" font-size="13" font-weight="700">DESeq2 + GSEA</text>
+      <path d="M0 127 H112 M0 127 V25" stroke="#A9B5BC" stroke-width="1.5" fill="none"/>
+      <path d="M2 113 C17 106, 20 75, 34 66 C49 56, 56 83, 69 74 C83 65, 84 36, 110 30" fill="none" stroke="#A61C4B" stroke-width="3"/>
+      <g stroke="#2C6B6B" stroke-width="1.5"><line x1="10" y1="130" x2="10" y2="139"/><line x1="18" y1="130" x2="18" y2="139"/><line x1="31" y1="130" x2="31" y2="139"/><line x1="51" y1="130" x2="51" y2="139"/><line x1="74" y1="130" x2="74" y2="139"/><line x1="88" y1="130" x2="88" y2="139"/><line x1="105" y1="130" x2="105" y2="139"/></g>
+    </g>
+    <rect x="962" y="404" width="112" height="34" rx="17" fill="#E8F0EF"/><text class="small" x="986" y="426" font-weight="700">Hypoxia</text>
+    <rect x="1084" y="404" width="128" height="34" rx="17" fill="#F7ECEF"/><text class="small" x="1099" y="426" font-weight="700">Inflammation</text>
+    <text class="tiny" x="962" y="468">Sample-aware, complementary analyses</text>
+  </g>
+
+  <!-- Stage 5: pseudotime -->
+  <g id="pseudotime">
+    <text class="stage-no" x="1270" y="100">05 · TRAJECTORY INFERENCE</text>
+    <text class="stage-title" x="1270" y="130">Monocle 2 pseudotime</text>
+
+    <!-- Branched graph -->
+    <g transform="translate(1282 176)">
+      <path d="M8 118 C48 116, 76 107, 105 92 C130 78, 143 68, 165 55 C186 42, 201 25, 218 10" stroke="#CAD2D6" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <path d="M105 92 C133 109, 161 128, 194 151 C208 161, 222 172, 238 186" stroke="#CAD2D6" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <path d="M105 92 C137 91, 168 91, 223 96" stroke="#CAD2D6" stroke-width="16" fill="none" stroke-linecap="round"/>
+      <path d="M8 118 C48 116, 76 107, 105 92 C130 78, 143 68, 165 55 C186 42, 201 25, 218 10" stroke="#1F5C5C" stroke-width="3" fill="none" marker-end="url(#arrow-teal)"/>
+      <path d="M105 92 C133 109, 161 128, 194 151 C208 161, 222 172, 238 186" stroke="#E18487" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      <path d="M105 92 C137 91, 168 91, 223 96" stroke="#6C7A3A" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+      <g fill="#FFFFFF" stroke-width="3"><circle cx="10" cy="118" r="8" stroke="#1F5C5C"/><circle cx="105" cy="92" r="9" stroke="#A61C4B"/><circle cx="218" cy="10" r="8" stroke="#162E93"/><circle cx="238" cy="186" r="8" stroke="#E18487"/><circle cx="223" cy="96" r="8" stroke="#6C7A3A"/></g>
+    </g>
+    <text class="label" x="1270" y="408"><tspan font-style="italic">FOXP3</tspan>⁺ state transitions</text>
+    <text class="small" x="1270" y="435">Computational pseudotemporal ordering</text>
+    <text class="tiny" x="1270" y="467">Hypoxia / TNFα–NF-κB activity</text>
+  </g>
+
+  <!-- Stage 6: CellOracle -->
+  <g id="celloracle">
+    <rect x="1558" y="84" width="320" height="450" rx="22" fill="#F5F9F8" stroke="#B9CECA" stroke-width="2"/>
+    <text class="stage-no" x="1580" y="115">06 · REGULATORY PERTURBATION</text>
+    <text class="stage-title" x="1580" y="147">CellOracle</text>
+
+    <!-- Regulatory network -->
+    <g transform="translate(1590 177)">
+      <g stroke="#8BA29E" stroke-width="1.8">
+        <line x1="70" y1="55" x2="18" y2="22"/><line x1="70" y1="55" x2="130" y2="18"/><line x1="70" y1="55" x2="145" y2="75"/><line x1="70" y1="55" x2="25" y2="95"/><line x1="70" y1="55" x2="105" y2="108"/>
+      </g>
+      <circle cx="18" cy="22" r="11" fill="#2C6B6B"/><circle cx="130" cy="18" r="9" fill="#6C7A3A"/><circle cx="145" cy="75" r="11" fill="#A61C4B"/><circle cx="25" cy="95" r="9" fill="#162E93"/><circle cx="105" cy="108" r="10" fill="#E18487"/>
+      <circle cx="70" cy="55" r="27" fill="#FFFFFF" stroke="#A61C4B" stroke-width="3"/>
+      <text x="70" y="61" text-anchor="middle" font-size="15" font-weight="700" font-style="italic">HIF1A</text>
+      <line x1="49" y1="34" x2="91" y2="76" stroke="#A61C4B" stroke-width="4" stroke-linecap="round"/>
+      <line x1="91" y1="34" x2="49" y2="76" stroke="#A61C4B" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <text x="1766" y="208" font-size="18" font-weight="700" fill="#A61C4B">IN SILICO KO</text>
+    <text class="tiny" x="1766" y="230">cluster-specific GRNs</text>
+
+    <!-- State points and vector field -->
+    <g transform="translate(1585 329)">
+      <g fill="#D8E5E3"><circle cx="28" cy="28" r="12"/><circle cx="58" cy="18" r="10"/><circle cx="83" cy="39" r="13"/><circle cx="116" cy="22" r="9"/><circle cx="143" cy="47" r="12"/><circle cx="176" cy="30" r="11"/><circle cx="210" cy="50" r="13"/><circle cx="240" cy="25" r="10"/></g>
+      <g stroke="#1F5C5C" stroke-width="2.5" fill="none" marker-end="url(#arrow-teal)">
+        <path d="M22 68 l22 -18"/><path d="M65 72 l24 -12"/><path d="M111 70 l20 -22"/><path d="M155 78 l28 -16"/><path d="M202 80 l21 -20"/><path d="M243 73 l18 -26"/>
+      </g>
+    </g>
+    <text x="1580" y="459" font-size="20" font-weight="700"><tspan font-style="italic">HIF1A</tspan> in silico knockout</text>
+    <text class="small" x="1580" y="488">Predicted state-dependent</text>
+    <text class="small" x="1580" y="510">transcriptional shifts</text>
+  </g>
+
+  <!-- Interpretive footer -->
+  <line x1="42" y1="558" x2="1878" y2="558" stroke="#D9E0E4" stroke-width="1.5"/>
+  <circle cx="54" cy="590" r="6" fill="#1F5C5C"/><text class="small" x="68" y="595">Healthy</text>
+  <circle cx="150" cy="590" r="6" fill="#E18487"/><text class="small" x="164" y="595">Crohn’s disease</text>
+  <text class="small" x="356" y="595">Transcriptomic measurements and computational predictions</text>
+  <text class="small" x="1878" y="595" text-anchor="end">No inference of post-perturbation cell abundance</text>
+  <text class="tiny" x="42" y="626">GEO matrices → Seurat → pseudobulk enrichment → Monocle 2 → CellOracle</text>
+</svg>

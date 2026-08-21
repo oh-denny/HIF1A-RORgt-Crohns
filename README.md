@@ -7,25 +7,23 @@ Code and supporting documentation for the analyses reported in the manuscript:
 
 `*` Corresponding authors.
 
+## Computational workflow
+
+<p align="center">
+  <img src="figures/computational_workflow.svg"
+       alt="Computational workflow for the human scRNA-seq reanalysis and HIF1A perturbation analysis"
+       width="100%">
+</p>
+
+**Computational workflow.** Publicly available ileal CD4⁺ T-cell scRNA-seq count matrices from healthy donors and patients with Crohn's disease (GSE209832) were reanalyzed to characterize *FOXP3*⁺ T-cell states, RORγt- and *HIF1A*-associated transcriptional programs, pathway enrichment, computational pseudotemporal organization, and the predicted effects of an *HIF1A* in silico knockout using CellOracle.
+
+An editable [SVG](figures/computational_workflow.svg) and a high-resolution [PNG](figures/computational_workflow.png) are provided in the `figures/` directory.
+
 ## Overview
 
 This repository contains the computational workflow used to reanalyze human ileal single-cell RNA-sequencing data from Crohn's disease and healthy samples. The analyses focus on FOXP3⁺ T-cell states, RORγt- and HIF-1α-associated transcriptional programs, pseudotime trajectories, and CellOracle simulations of an *HIF1A* in silico knockout.
 
-The main workflow is:
-
-```text
-GSE209832 data
-      ↓
-Seurat quality control and SCTransform normalization
-      ↓
-FOXP3⁺ T-cell subclustering and transcriptional analyses
-      ├── Figure 1: cell states, HIF1A, RORγt, and pathway enrichment
-      └── Figure 6: Monocle trajectory and pathway scores
-                     ↓
-              CellOracle GRN analysis
-                     ↓
-          HIF1A knockout simulation (Figures 6D–F)
-```
+The figure above summarizes the major analytical stages. Script-level inputs and outputs are mapped below for reproducibility.
 
 ## Repository structure
 
@@ -38,8 +36,6 @@ FOXP3⁺ T-cell subclustering and transcriptional analyses
 | [`code/Figure_6/figure_6D_E_F/celloracle`](code/Figure_6/figure_6D_E_F/celloracle) | CellOracle network construction and *HIF1A* knockout simulation | Figures 6D–F and intermediate CellOracle objects |
 | [`code/Supp`](code/Supp) | Supplementary RORγt-high abundance and donor/sample analyses | Supplementary figures |
 | [`functions`](functions) | Shared R functions and Monocle compatibility patches | Reusable analysis helpers |
-| [`figures`](figures) | Generated figure files | TIFF and related figure outputs |
-| [`pseudobulk_clusters`](pseudobulk_clusters) | Pseudobulk differential-expression and enrichment results | Tables and pathway plots |
 
 ## What generates each figure
 
@@ -47,11 +43,11 @@ FOXP3⁺ T-cell subclustering and transcriptional analyses
 |---|---|---|
 | Figure 1A | [`code/Figure_1/figure_1A/figure_1A.r`](code/Figure_1/figure_1A/figure_1A.r) | UMAP of FOXP3⁺ T-cell subclusters |
 | Figure 1B | [`code/Figure_1/Figure_1B/figure_1B.r`](code/Figure_1/Figure_1B/figure_1B.r) | Distribution of RORγt-high Tregs by study group |
-| Figure 1C | [`code/Figure_1/figure_1C/figure_1C.r`](code/Figure_1/figure_1C/figure_1C.r) | Split violin plots of Treg- and HIF-related markers |
+| Figure 1C | [`code/Figure_1/Figure_1C/figure_1C.r`](code/Figure_1/figure_1C/figure_1C.r) | Split violin plots of Treg- and HIF-related markers |
 | Figure 1D | [`code/Figure_1/figure_1D/figure_1D.r`](code/Figure_1/figure_1D/figure_1D.r) | Alluvial plot connecting group, FOXP3⁺ subcluster, and HIF1A status |
-| Figure 1E | [`code/Figure_1/figure_1E/figure_1E.r`](code/Figure_1/figure_1E/figure_1E.r) | Donut charts showing the distribution of HIF1A⁺ cells |
-| Figure 1F | [`code/Figure_1/figure_1F/figure_1F.r`](code/Figure_1/figure_1F/figure_1F.r) | Pseudobulk ssGSEA heatmap for selected clusters |
-| Figure 1G | [`code/Figure_1/figure_1G/figure_1G.r`](code/Figure_1/figure_1G/figure_1G.r) | Pseudobulk DESeq2 and Hallmark fgsea analyses, including hypoxia enrichment |
+| Figure 1E | [`code/Figure_1/Figure_1E/figure_1E.r`](code/Figure_1/figure_1E/figure_1E.r) | Donut charts showing the distribution of HIF1A⁺ cells |
+| Figure 1F | [`code/Figure_1/Figure_1F/figure_1F.r`](code/Figure_1/figure_1F/figure_1F.r) | Pseudobulk ssGSEA heatmap for selected clusters |
+| Figure 1G | [`code/Figure_1/Figure_1G/figure_1G.r`](code/Figure_1/figure_1G/figure_1G.r) | Pseudobulk DESeq2 and Hallmark fgsea analyses, including hypoxia enrichment |
 | Figure 6 trajectory input | [`code/Figure_6/trajectory.r`](code/Figure_6/trajectory.r) | Ordered Monocle 2 CellDataSet used by the trajectory panels |
 | Figure 6A | [`code/Figure_6/figure_6A/figura_6A.r`](code/Figure_6/figure_6A/figura_6A.r) | Trajectory colored by pseudotime and Monocle state |
 | Figure 6B | [`code/Figure_6/figure_6B/figure_6B.r`](code/Figure_6/figure_6B/figure_6B.r) | Trajectory colored by cell cluster and clinical group |
