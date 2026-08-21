@@ -29,7 +29,7 @@ The figure above summarizes the major analytical stages. Script-level inputs and
 
 The processed data objects and files required to reproduce key computational analyses are publicly available on Zenodo:
 
-**Zenodo:** [10.5281/zenodo.22048621](https://doi.org/10.5281/zenodo.22048621)
+**Zenodo:** [10.5281/zenodo.22048288](https://doi.org/10.5281/zenodo.22048288)
 
 The deposited files include:
 
