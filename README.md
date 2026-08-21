@@ -25,6 +25,22 @@ This repository contains the computational workflow used to reanalyze human ilea
 
 The figure above summarizes the major analytical stages. Script-level inputs and outputs are mapped below for reproducibility.
 
+## Data availability
+
+The processed data objects and files required to reproduce key computational analyses are publicly available on Zenodo:
+
+**Zenodo:** [10.5281/zenodo.22048621](https://doi.org/10.5281/zenodo.22048621)
+
+The deposited files include:
+
+* `seurat_list.rds` — Seurat objects generated from the original GSE209832 10x Genomics matrices, prior to downstream quality-control filtering and integration.
+* `monocle2_cds_ordered.rds` — Monocle 2 CellDataSet used for pseudotemporal trajectory analysis.
+* CellOracle input files — expression matrix, cell and gene identifiers, metadata, and UMAP coordinates used for the HIF1A-focused gene regulatory network and in silico perturbation analyses.
+
+Raw sequencing data are available from the NCBI Gene Expression Omnibus (GEO) under accession **GSE209832**.
+
+Analysis scripts and functions required to process these data and reproduce the analyses are provided in this repository.
+
 ## Repository structure
 
 | Path | Purpose | Main output |
