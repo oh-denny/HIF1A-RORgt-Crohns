@@ -79,3 +79,4 @@ venv/
 
 # Keep dependency manifests even though they are text files.
 !code/**/requirements*.txt
+!figures/**/computational_workflow*.png
