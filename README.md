@@ -44,7 +44,7 @@ The figure above summarizes the major analytical stages. Script-level inputs and
 | Figure 1A | [`code/Figure_1/figure_1A/figure_1A.r`](code/Figure_1/figure_1A/figure_1A.r) | UMAP of FOXP3⁺ T-cell subclusters |
 | Figure 1B | [`code/Figure_1/Figure_1B/figure_1B.r`](code/Figure_1/Figure_1B/figure_1B.r) | Distribution of RORγt-high Tregs by study group |
 | Figure 1C | [`code/Figure_1/Figure_1C/figure_1C.r`](code/Figure_1/figure_1C/figure_1C.r) | Split violin plots of Treg- and HIF-related markers |
-| Figure 1D | [`code/Figure_1/figure_1D/figure_1D.r`](code/Figure_1/figure_1D/figure_1D.r) | Alluvial plot connecting group, FOXP3⁺ subcluster, and HIF1A status |
+| Figure 1D | [`code/Figure_1/Figure_1D/figure_1D.r`](code/Figure_1/figure_1D/figure_1D.r) | Alluvial plot connecting group, FOXP3⁺ subcluster, and HIF1A status |
 | Figure 1E | [`code/Figure_1/Figure_1E/figure_1E.r`](code/Figure_1/figure_1E/figure_1E.r) | Donut charts showing the distribution of HIF1A⁺ cells |
 | Figure 1F | [`code/Figure_1/Figure_1F/figure_1F.r`](code/Figure_1/figure_1F/figure_1F.r) | Pseudobulk ssGSEA heatmap for selected clusters |
 | Figure 1G | [`code/Figure_1/Figure_1G/figure_1G.r`](code/Figure_1/figure_1G/figure_1G.r) | Pseudobulk DESeq2 and Hallmark fgsea analyses, including hypoxia enrichment |
