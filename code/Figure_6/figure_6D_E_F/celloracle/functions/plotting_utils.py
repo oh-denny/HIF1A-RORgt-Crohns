@@ -7,7 +7,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import seaborn as sns
 
-from .embedding_utils import arrow_scale, robust_limits
+from .embedding_utils import arrow_scale
 from .perturbation_utils import (
     celloracle_impact_summary,
     cluster_ps_summary,
@@ -26,7 +26,6 @@ CLUSTER_COLORS = {
     "6": "#162E93",
 }
 PS_CMAP = LinearSegmentedColormap.from_list("ps_purple_white_green", ["#8e1b8e", "#ffffff", "#239b56"], N=256)
-PS_CLUSTERS45_CMAP = LinearSegmentedColormap.from_list("ps_rose_white_green", ["#a52391", "#ffffff", "#239b56"], N=256)
 MARKOV_CMAP = LinearSegmentedColormap.from_list("markov_blue", ["#deedf7", "#6baed6", "#08519c"], N=256)
 
 
@@ -42,19 +41,6 @@ def cluster_palette(values):
     missing = [level for level in levels if level not in CLUSTER_COLORS]
     fallback = sns.color_palette("tab10", n_colors=max(10, len(missing)))
     return {level: CLUSTER_COLORS.get(level, fallback[missing.index(level)] if level in missing else None) for level in levels}
-
-
-def clean_axes(ax, x="FA1", y="FA2"):
-    ax.set_xlabel(x)
-    ax.set_ylabel(y)
-    ax.set_aspect("equal", adjustable="datalim")
-    ax.grid(False)
-    sns.despine(ax=ax)
-
-
-def apply_limits(ax, frame, x, y):
-    ax.set_xlim(*robust_limits(frame[x]))
-    ax.set_ylim(*robust_limits(frame[y]))
 
 
 def clean_embedding_axis(ax):
@@ -176,62 +162,6 @@ def plot_perturbation_score_map(score, output_base):
     save_figure(fig, output_base)
 
 
-def delta_map(frame, base, title, x="FA1", y="FA2", highlight=None, cluster_column="seurat_clusters"):
-    fig, ax = plt.subplots(figsize=(7.2, 6.2))
-    ax.scatter(frame[x], frame[y], s=5, color="#d8dadd", alpha=0.55, linewidths=0)
-    draw = frame if highlight is None else frame[frame[cluster_column] == highlight]
-    points = ax.scatter(draw[x], draw[y], c=draw["delta_l2"], s=9 if highlight is None else 13,
-                        cmap="magma", vmin=0, vmax=np.nanquantile(frame["delta_l2"], 0.98), linewidths=0, rasterized=True)
-    if highlight is not None:
-        center = draw[[x, y]].median()
-        ax.text(center[x], center[y], f"cluster {highlight}", fontsize=9, weight="bold", ha="center", va="center",
-                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.7, "pad": 2})
-    fig.colorbar(points, ax=ax, label="Magnitude of predicted transcriptomic change (delta L2)")
-    ax.set_title(title)
-    clean_axes(ax, x, y)
-    apply_limits(ax, frame, x, y)
-    save_figure(fig, base)
-
-
-def arrow_plot(frame, sampled, base, title, x="FA1", y="FA2", u="shift_FA1", v="shift_FA2"):
-    fig, ax = plt.subplots(figsize=(7.2, 6.2))
-    ax.scatter(frame[x], frame[y], s=5, color="#d8dadd", alpha=0.55, linewidths=0)
-    factor = arrow_scale(frame[[x, y]], frame[[u, v]], fraction=0.025)
-    ax.quiver(sampled[x], sampled[y], sampled[u] * factor, sampled[v] * factor, angles="xy", scale_units="xy", scale=1,
-              width=0.0022, headwidth=3.2, headlength=4.0, color="#111111", alpha=0.62)
-    ax.set_title(title)
-    clean_axes(ax, x, y)
-    apply_limits(ax, frame, x, y)
-    save_figure(fig, base)
-
-
-def flow_plot(cells, grid, base, title, x="FA1", y="FA2", gx="grid_FA1", gy="grid_FA2", gu="flow_FA1", gv="flow_FA2"):
-    kept = grid[grid["n_cells"] >= 5].copy()
-    fig, ax = plt.subplots(figsize=(7.2, 6.2))
-    ax.scatter(cells[x], cells[y], s=5, color="#d8dadd", alpha=0.55, linewidths=0)
-    if len(kept):
-        factor = arrow_scale(cells[[x, y]], kept[[gu, gv]], fraction=0.035)
-        ax.quiver(kept[gx], kept[gy], kept[gu] * factor, kept[gv] * factor, angles="xy", scale_units="xy", scale=1,
-                  width=0.0025, headwidth=3.2, color="#111111", alpha=0.62)
-    ax.set_title(title)
-    clean_axes(ax, x, y)
-    apply_limits(ax, cells, x, y)
-    save_figure(fig, base)
-    return kept
-
-
-def distribution_plot(embedding, base, cluster_column="seurat_clusters", group_column="group"):
-    order = sorted(embedding[cluster_column].unique(), key=int)
-    fig, ax = plt.subplots(figsize=(9, 4.8))
-    sns.boxplot(data=embedding, x=cluster_column, y="delta_l2", hue=group_column, order=order,
-                palette={"CD": "#c43c39", "Healthy": "#2878a8"}, showfliers=False, width=0.68, linewidth=0.9, ax=ax)
-    ax.set(xlabel="Seurat cluster", ylabel="Predicted change magnitude (delta L2)",
-           title="Predicted HIF1A knockout effect by disease group and cell cluster")
-    ax.legend(title="Group", frameon=False)
-    sns.despine(ax=ax)
-    save_figure(fig, base)
-
-
 def cluster_centers(oracle, cluster_column="seurat_clusters"):
     import pandas as pd
     embedding = pd.DataFrame({"UMAP1": oracle.embedding[:, 0], "UMAP2": oracle.embedding[:, 1],
@@ -328,33 +258,6 @@ def plot_groups(oracle, grid, density, results, figures, markov_steps):
     fig.suptitle("HIF1A knockout simulation stratified by disease group", fontsize=14, y=1.0)
     fig.tight_layout()
     save_figure(fig, figures / "HIF1A_KO_PS_and_markov_by_group")
-
-
-def plot_ps_clusters4_5(grid, cells, output_base, cluster_column="seurat_clusters"):
-    usable = grid[~grid["mass_filtered"]].copy()
-    centers = cells.groupby(cluster_column)[["UMAP1", "UMAP2"]].median()
-    fig, ax = plt.subplots(figsize=(6.2, 5.4))
-    ax.scatter(cells["UMAP1"], cells["UMAP2"], s=5, color="#e5e7eb", alpha=0.65, linewidths=0, rasterized=True)
-    vmax = float(np.nanquantile(np.abs(usable["perturbation_score"]), 0.98))
-    points = ax.scatter(usable["UMAP1"], usable["UMAP2"], c=usable["perturbation_score"], s=18, marker="s",
-                        cmap=PS_CLUSTERS45_CMAP, vmin=-vmax, vmax=vmax, linewidths=0, rasterized=True)
-    rose = "#a52391"
-    center4, center5 = centers.loc["4"], centers.loc["5"]
-    anchor = (center4 + center5) / 2
-    position = (anchor["UMAP1"] - 0.9, anchor["UMAP2"] + 1.65)
-    ax.annotate("Progression inhibited\nclusters 4 and 5", xy=(center5["UMAP1"], center5["UMAP2"]), xytext=position,
-                textcoords="data", color=rose, fontsize=8.5, weight="bold", ha="center",
-                arrowprops={"arrowstyle": "->", "color": rose, "lw": 1.2, "connectionstyle": "arc3,rad=0.12"})
-    ax.annotate("", xy=(center4["UMAP1"], center4["UMAP2"]), xytext=position, textcoords="data",
-                arrowprops={"arrowstyle": "->", "color": rose, "lw": 1.2, "connectionstyle": "arc3,rad=-0.16"})
-    center3 = centers.loc["3"]
-    ax.annotate("Progression promoted\ncluster 3", xy=(center3["UMAP1"], center3["UMAP2"]), xytext=(-42, -42),
-                textcoords="offset points", color="#15803d", fontsize=8.5, weight="bold",
-                arrowprops={"arrowstyle": "->", "color": "#15803d", "lw": 1.2, "connectionstyle": "arc3,rad=0.12"})
-    add_colorbar(fig, points, ax, "Perturbation score\n(negative: inhibition; positive: promotion)")
-    ax.set_title("HIF1A KO perturbation score along the observed trajectory", fontsize=11)
-    clean_embedding_axis(ax)
-    save_figure(fig, output_base)
 
 
 def save_primary_knockout_figures(oracle, target_gene, out_figures):

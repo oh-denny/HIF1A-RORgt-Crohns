@@ -57,7 +57,6 @@ features = SelectIntegrationFeatures(
   nfeatures = 3000
 )
 
-features = SelectIntegrationFeatures(SC_obj, nfeatures = 3000)
 VariableFeatures(SC_obj) = features
 VariableFeatures(SC_obj) = rownames(SC_obj[["SCT"]]@scale.data)
 

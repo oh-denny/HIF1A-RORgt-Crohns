@@ -46,9 +46,9 @@ Python 3.10 ou 3.11.
 Opcao recomendada com conda/mamba:
 
 ```bash
-mamba env create -f code/Figure_6/figure_6D/celloracle/environment.yml
+mamba env create -f code/Figure_6/figure_6D_E_F/celloracle/environment.yml
 conda activate celloracle-hif1a
-bash code/Figure_6/figure_6D/celloracle/install_celloracle_extras.sh celloracle-hif1a
+bash code/Figure_6/figure_6D_E_F/celloracle/install_celloracle_extras.sh celloracle-hif1a
 ```
 
 Opcao com `venv`, se `python3.10` estiver instalado:
@@ -56,17 +56,17 @@ Opcao com `venv`, se `python3.10` estiver instalado:
 ```bash
 python3.10 -m venv .venv-celloracle
 source .venv-celloracle/bin/activate
-python -m pip install -r code/Figure_6/figure_6D/celloracle/requirements-celloracle.txt
+python -m pip install -r code/Figure_6/figure_6D_E_F/celloracle/requirements-celloracle.txt
 ```
 
 No macOS arm64 deste projeto, `velocyto` precisou ser compilado com
-`code/Figure_6/figure_6D/celloracle/clang_openmp_wrapper.sh`, pois o Apple clang nao aceita
+`code/Figure_6/figure_6D_E_F/celloracle/clang_openmp_wrapper.sh`, pois o Apple clang nao aceita
 `-fopenmp` diretamente.
 
 ## 3. Rodar o nocaute in silico
 
 ```bash
-python code/Figure_6/figure_6D/celloracle/run_hif1a_knockout.py \
+python code/Figure_6/figure_6D_E_F/celloracle/run_hif1a_knockout.py \
   --export-dir celloracle_export_hif1a \
   --out-dir results/celloracle_hif1a_ko \
   --target-gene HIF1A \
@@ -83,7 +83,7 @@ multiprocessing do sandbox:
 CELLO_N_FEATURES=1500 CELLO_EXPORT_DIR=celloracle_export_hif1a_1500 \
   Rscript code/knowkout.r
 
-conda run -n celloracle-hif1a python code/Figure_6/figure_6D/celloracle/run_hif1a_knockout.py \
+conda run -n celloracle-hif1a python code/Figure_6/figure_6D_E_F/celloracle/run_hif1a_knockout.py \
   --export-dir celloracle_export_hif1a_1500 \
   --out-dir results/celloracle_hif1a_ko_1500 \
   --target-gene HIF1A \
@@ -145,7 +145,7 @@ celloracle_export_hif1a_1500/
 Se voce tiver uma base GRN propria derivada de scATAC/motif analysis, use:
 
 ```bash
-python code/Figure_6/figure_6D/celloracle/run_hif1a_knockout.py \
+python code/Figure_6/figure_6D_E_F/celloracle/run_hif1a_knockout.py \
   --base-grn path/to/TF_info_matrix.parquet
 ```
 
@@ -169,5 +169,5 @@ ja calculado, sem repetir o pipeline completo:
 
 ```bash
 conda run -n celloracle-hif1a python \
-  code/Figure_6/figure_6D/celloracle/regenerate_propagation_HIF1A_KO.py
+  code/Figure_6/figure_6D_E_F/celloracle/regenerate_propagation_HIF1A_KO.py
 ```

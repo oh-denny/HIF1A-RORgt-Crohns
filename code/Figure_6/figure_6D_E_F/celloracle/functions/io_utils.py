@@ -43,24 +43,3 @@ def make_timestamped_output_dir(prefix, children):
     for child in children:
         (out / child).mkdir(parents=True, exist_ok=False)
     return out
-
-
-def read_refined_inputs(source, cluster_column, group_column):
-    """Read and validate the tables consumed by the refined FA pipeline."""
-    import pandas as pd
-
-    tables = Path(source) / "tables"
-    names = {
-        "embedding": "fa_embedding_cells.csv",
-        "vectors": "cell_shift_vectors_FA.csv",
-        "grid": "grid_shift_vectors_FA.csv",
-        "propagation": "propagation_magnitude_by_cluster.csv",
-        "score": "perturbation_score_FA.csv",
-    }
-    data = {}
-    for key, name in names.items():
-        path = tables / name
-        if not path.exists():
-            raise FileNotFoundError(path)
-        data[key] = pd.read_csv(path, dtype={cluster_column: str, group_column: str})
-    return data

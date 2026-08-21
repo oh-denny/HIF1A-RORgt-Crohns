@@ -254,11 +254,3 @@ def most_enriched_cluster(results):
     end = results["end_cluster"].value_counts(normalize=True)
     enrichment = (end / start).replace([np.inf, -np.inf], np.nan).dropna()
     return str(enrichment.idxmax()), enrichment
-
-
-def group_summary(embedding, cluster_column="seurat_clusters", group_column="group"):
-    return (
-        embedding.groupby([cluster_column, group_column])["delta_l2"]
-        .agg(n_cells="size", mean_delta_l2="mean", median_delta_l2="median", sd_delta_l2="std")
-        .reset_index()
-    )
